@@ -110,7 +110,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 	hInst = hInstance;
 	
 	hWnd = ::CreateWindow(lpClassName, lpWindowName, WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+		CW_USEDEFAULT, 0, 400, 420, NULL, NULL, hInstance, NULL);
 
 	// 窗口创建失败
 	if (!hWnd) {
@@ -650,7 +650,7 @@ void CalEqual(HWND resultHwnd)
 	case MOD:
 		if (Num2 == 0.0)
 		{
-			MessageBoxA(resultHwnd, "被除数不能是0", "警告", MB_OK);
+			MessageBoxA(resultHwnd, "被模数不能是0", "警告", MB_OK);
 			SecondNumFirstTag = true;
 			return;
 		}
@@ -659,7 +659,7 @@ void CalEqual(HWND resultHwnd)
 	case SQR:
 		if (Num2 == 0.0)
 		{
-			MessageBoxA(resultHwnd, "被除数不能是0", "警告", MB_OK);
+			MessageBoxA(resultHwnd, "开方数不能是0", "警告", MB_OK);
 			SecondNumFirstTag = true;
 			return;
 		}
