@@ -45,7 +45,7 @@ bool SecondNumFirstTag = false;					// 是否 第二个数第一次输入
 bool ConstantCalTag = false;					// 是否 正在连续运算
 int CalState = NULL;								// 记录运算的类型
 char result[100] = "";					// 用来显示至edit框(结果)
-std::string key = "1234567890+-./%*="; // 键盘输入的合法键
+std::string key = "1234567890+-./%*=\r"; // 键盘输入的合法键
 
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -503,7 +503,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 				CalTag = true;
 				SecondNumFirstTag = true;
 				break;
-			case '=':
+			case '\r':
 				CalEqual(resultHwnd);
 				break;
 			case VK_BACK:
@@ -531,84 +531,94 @@ void setNum(HWND resultHwnd, char* num)
 	{
 		if (FirstNumFirstTag == true)
 		{
-			if (*num == '.')
-			{
-				if (FirstNum[0] == '0')
+			if (strlen(FirstNum) < MAX_RESULT - 1) {
+				if (*num == '.')
 				{
-					strcat_s(FirstNum, num);
-					FirstNumFirstTag = false;
-					i = j = 0;
-					return;
+					if (FirstNum[0] == '0')
+					{
+						strcat_s(FirstNum, strlen(num) + 1, num);
+						FirstNumFirstTag = false;
+						i = j = 0;
+						return;
+					}
+					else
+					{
+						MessageBoxA(resultHwnd, "请先输入数字", "警告", MB_OK);
+						return;
+					}
 				}
-				else
-				{
-					MessageBoxA(resultHwnd, "请先输入数字", "警告", MB_OK);
-					return;
-				}
+				i = j = 0;
+				FirstNum[0] = *num;
+				FirstNumFirstTag = false;
 			}
-			i = j = 0;
-			FirstNum[0] = *num;
-			FirstNumFirstTag = false;
 		}
 		else
 		{
-			if (FirstNum[0] == '0'&& *num == '0'&&FirstNum[j] != '.')
-			{
-				return;
-			}
-			if ((FirstNum[i] == '.' || FirstNum[j] == '.') && *num == '.')
-			{
-				return;
-			}
-			if (GetWindowTextLength(resultHwnd) >= MAX_RESULT)
-			{
+			if (strlen(FirstNum) < MAX_RESULT - 1) {
+				if (FirstNum[0] == '0'&& *num == '0'&&FirstNum[j] != '.')
+				{
+					return;
+				}
+				if ((FirstNum[i] == '.' || FirstNum[j] == '.') && *num == '.')
+				{
+					return;
+				}
+				/*if (GetWindowTextLength(resultHwnd) >= MAX_RESULT)
+				{
 				MessageBoxA(resultHwnd, "超过最大长度", "警告", MB_OK);
 				return;
+				}*/
+				if (*num == '.') j = i + 1;
+				i++;
+				strcat_s(FirstNum, num);
 			}
-			if (*num == '.') j = i + 1;
-			i++;
-			strcat_s(FirstNum, num);
-		}
-		ConstantCalTag = false;				//输入第一个数则表示 没有连续运算
+			ConstantCalTag = false;				//输入第一个数则表示 没有连续运算
+			
+			}
 		::SetWindowTextA(resultHwnd, FirstNum);
 	}
 	else
 	{										//true表示输入的是第二个数
 		if (SecondNumFirstTag == true)
 		{
-			if (*num == '.')
-			{
-				MessageBoxA(resultHwnd, "请先输入数字", "警告", MB_OK);
-				return;
+			if (strlen(SecondNum) < MAX_RESULT - 1) {
+				if (*num == '.')
+				{
+					MessageBoxA(resultHwnd, "请先输入数字", "警告", MB_OK);
+					return;
+				}
+				else
+				{
+					SecondNum[0] = *num;
+					SecondNumFirstTag = false;
+				}
+				i = j = 0;
 			}
-			else
-			{
-				SecondNum[0] = *num;
-				SecondNumFirstTag = false;
-			}
-			i = j = 0;
 		}
 		else
 		{
-			if (SecondNum[0] == '0'&& *num == '0'&&SecondNum[i] != '.')
-			{
-				return;
-			}
-			if ((SecondNum[j] == '.' || SecondNum[i] == '.') && *num == '.')
-			{
-				return;
-			}
-			if (GetWindowTextLength(resultHwnd) >= MAX_RESULT)
-			{
+			if (strlen(SecondNum) < MAX_RESULT - 1) {
+				if (SecondNum[0] == '0'&& *num == '0'&&SecondNum[i] != '.')
+				{
+					return;
+				}
+				if ((SecondNum[j] == '.' || SecondNum[i] == '.') && *num == '.')
+				{
+					return;
+				}
+				/*if (GetWindowTextLength(resultHwnd) >= MAX_RESULT)
+				{
 				MessageBoxA(resultHwnd, "超过最大长度", "警告", MB_OK);
 				return;
+				}*/
+				if (*num == '.') i = j + 1;
+				j++;
+				strcat_s(SecondNum, num);
 			}
-			if (*num == '.') i = j + 1;
-			j++;
-			strcat_s(SecondNum, num);
-		}
 
-		//strcat_s(SecondNum, num);
+			//strcat_s(SecondNum, num);
+			
+			}
 		::SetWindowTextA(resultHwnd, SecondNum);
 	}
 
@@ -638,7 +648,8 @@ void CalEqual(HWND resultHwnd)
 	case DIV:
 		if (Num2 == 0.0)
 		{
-			MessageBoxA(resultHwnd, "被除数不能是0", "警告", MB_OK);
+			//MessageBoxA(resultHwnd, "被除数不能是0", "警告", MB_OK);
+			::SetWindowTextA(resultHwnd, (LPCSTR)("被除数不能为0"));
 			SecondNumFirstTag = true;
 			return;
 		}
@@ -650,7 +661,8 @@ void CalEqual(HWND resultHwnd)
 	case MOD:
 		if (Num2 == 0.0)
 		{
-			MessageBoxA(resultHwnd, "被模数不能是0", "警告", MB_OK);
+			//MessageBoxA(resultHwnd, "被模数不能是0", "警告", MB_OK);
+			::SetWindowTextA(resultHwnd, (LPCSTR)("被模数不能为0"));
 			SecondNumFirstTag = true;
 			return;
 		}
@@ -659,7 +671,8 @@ void CalEqual(HWND resultHwnd)
 	case SQR:
 		if (Num2 == 0.0)
 		{
-			MessageBoxA(resultHwnd, "开方数不能是0", "警告", MB_OK);
+			//MessageBoxA(resultHwnd, "开方数不能是0", "警告", MB_OK);
+			::SetWindowTextA(resultHwnd, (LPCSTR)("开方数不能为0"));
 			SecondNumFirstTag = true;
 			return;
 		}
